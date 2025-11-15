@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 const SESSION_TOKEN_COOKIE_NAME = "session_token";
 const SESSION_TOKEN_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Check if session token exists
   const sessionToken = request.cookies.get(SESSION_TOKEN_COOKIE_NAME);
 

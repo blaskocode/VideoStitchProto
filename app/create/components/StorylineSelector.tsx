@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { StorylineOption } from "@/lib/llmClient";
 
@@ -22,14 +22,7 @@ export function StorylineSelector({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Generate storylines if none exist
-  useEffect(() => {
-    if (storylines.length === 0 && !isGenerating && !isLoading) {
-      generateStorylines();
-    }
-  }, []);
-
-  const generateStorylines = async () => {
+  const generateStorylines = useCallback(async () => {
     setIsGenerating(true);
     setIsLoading(true);
 
@@ -51,7 +44,17 @@ export function StorylineSelector({
       setIsGenerating(false);
       setIsLoading(false);
     }
-  };
+  }, [projectId]);
+
+  // Generate storylines if none exist on mount
+  useEffect(() => {
+    // If no storylines exist and we're not already generating, trigger generation
+    // Note: isLoading might be true initially, but we still want to generate
+    if (storylines.length === 0 && !isGenerating) {
+      generateStorylines();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount - we intentionally only check initial state
 
   const handleSelect = async (index: number) => {
     if (isSaving) return;

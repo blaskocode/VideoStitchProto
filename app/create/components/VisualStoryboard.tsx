@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Scene } from "@/types/domain";
 
@@ -21,15 +21,7 @@ export function VisualStoryboard({
   );
   const [isApproving, setIsApproving] = useState(false);
 
-  // Generate images if scenes don't have images yet
-  useEffect(() => {
-    const hasImages = scenes.some((scene) => scene.imageUrl);
-    if (scenes.length > 0 && !hasImages && !isGenerating && !isLoading) {
-      generateImages();
-    }
-  }, []);
-
-  const generateImages = async () => {
+  const generateImages = useCallback(async () => {
     setIsGenerating(true);
     setIsLoading(true);
 
@@ -42,25 +34,45 @@ export function VisualStoryboard({
       );
 
       if (!response.ok) {
-        throw new Error("Failed to generate scene images");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+        console.error("Error generating scene images:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      if (!data.scenes || data.scenes.length === 0) {
+        throw new Error("No scenes were returned");
+      }
       setScenes(data.scenes || []);
     } catch (error) {
       console.error("Error generating scene images:", error);
-      alert("Failed to generate scene images. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to generate scene images. Please try again.";
+      alert(`Failed to generate scene images: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
       setIsLoading(false);
     }
-  };
+  }, [projectId]);
+
+  // Generate images if scenes don't have images yet
+  useEffect(() => {
+    const hasImages = scenes.some((scene) => scene.imageUrl);
+    // If scenes exist but no images, trigger generation
+    // Note: isLoading might be true initially, but we still want to generate
+    if (scenes.length > 0 && !hasImages && !isGenerating) {
+      generateImages();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount - we intentionally only check initial state
 
   const handleApprove = async () => {
     setIsApproving(true);
+    console.log(`[VisualStoryboard] Starting video generation for project ${projectId}`);
 
     try {
       // Start video generation for all scenes
+      console.log(`[VisualStoryboard] Calling /api/projects/${projectId}/videos/start`);
       const response = await fetch(
         `/api/projects/${projectId}/videos/start`,
         {
@@ -68,15 +80,24 @@ export function VisualStoryboard({
         }
       );
 
+      console.log(`[VisualStoryboard] Response status:`, response.status);
+
       if (!response.ok) {
-        throw new Error("Failed to start video generation");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+        console.error(`[VisualStoryboard] Error response:`, errorMessage);
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
+      console.log(`[VisualStoryboard] Video generation started:`, data);
 
       // Refresh to show progress
       router.refresh();
     } catch (error) {
-      console.error("Error starting video generation:", error);
-      alert("Failed to start video generation. Please try again.");
+      console.error("[VisualStoryboard] Error starting video generation:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to start video generation. Please try again.";
+      alert(`Failed to start video generation: ${errorMessage}`);
     } finally {
       setIsApproving(false);
     }

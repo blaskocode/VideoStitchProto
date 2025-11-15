@@ -8,6 +8,11 @@ import { StorylineSelector } from "./components/StorylineSelector";
 import { SceneFlowViewer } from "./components/SceneFlowViewer";
 import { VisualStoryboard } from "./components/VisualStoryboard";
 import { VideoGenerationProgress } from "./components/VideoGenerationProgress";
+import { MusicSelector } from "./components/MusicSelector";
+import { VideoCompositionProgress } from "./components/VideoCompositionProgress";
+import { ErrorDisplay } from "./components/ErrorDisplay";
+import { MoodboardGenerationProgress } from "./components/MoodboardGenerationProgress";
+import { StartOverButton } from "./components/StartOverButton";
 import { createClient } from "@/lib/supabaseClient";
 import type { StorylineOption } from "@/lib/llmClient";
 
@@ -46,7 +51,8 @@ export default async function CreatePage() {
     );
   }
 
-  // If project exists but no moodboards yet, show product/mood prompt
+  // If project exists but no moodboards yet, show the form
+  // The form will trigger moodboard generation and navigate to progress screen
   if (activeProject.status === "inspire" && !activeProject.moodboards) {
     return (
       <div
@@ -186,8 +192,101 @@ export default async function CreatePage() {
     );
   }
 
-  // If status is 'rendering', show video generation progress
+  // If status is 'rendering', check if videos are complete and music is selected
   if (activeProject.status === "rendering") {
+    const scenes = activeProject.scenes || [];
+    const allVideosComplete = scenes.length > 0 && scenes.every((scene) => scene.videoUrl);
+    const hasMusic = !!activeProject.musicTrackId;
+    const hasFinalVideo = !!activeProject.finalVideoUrl;
+
+    // If final video exists, show it (status should be 'complete' but handle edge case)
+    if (hasFinalVideo) {
+      return (
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "2rem",
+          }}
+        >
+          <Stepper currentStep="complete" />
+          <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+            Your video is ready! 🎬
+          </h1>
+          <div style={{ marginBottom: "2rem" }}>
+            <video
+              controls
+              src={activeProject.finalVideoUrl}
+              style={{
+                width: "100%",
+                maxWidth: "800px",
+                borderRadius: "0.5rem",
+                margin: "0 auto",
+                display: "block",
+              }}
+            />
+          </div>
+          <a
+            href={activeProject.finalVideoUrl}
+            download
+            style={{
+              display: "inline-block",
+              padding: "0.75rem 1.5rem",
+              backgroundColor: "#0070f3",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: "0.25rem",
+              fontSize: "1rem",
+            }}
+          >
+            Download Video
+          </a>
+        </div>
+      );
+    }
+
+    // If all videos are complete and music is selected, show composition progress
+    if (allVideosComplete && hasMusic) {
+      return (
+        <div
+          style={{
+            maxWidth: "800px",
+            margin: "0 auto",
+            padding: "2rem",
+          }}
+        >
+          <Stepper currentStep={currentStep} />
+          <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+            Step 4: Finalizing your video
+          </h1>
+          <VideoCompositionProgress projectId={activeProject.id} />
+        </div>
+      );
+    }
+
+    // If all videos are complete but no music selected, show music selector
+    if (allVideosComplete && !hasMusic) {
+      return (
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "2rem",
+          }}
+        >
+          <Stepper currentStep={currentStep} />
+          <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+            Step 4: Choose your music
+          </h1>
+          <p style={{ color: "#666", marginBottom: "2rem" }}>
+            Select a music track that matches the mood of your video.
+          </p>
+          <MusicSelector projectId={activeProject.id} />
+        </div>
+      );
+    }
+
+    // Otherwise, show video generation progress
     return (
       <div
         style={{
@@ -201,6 +300,94 @@ export default async function CreatePage() {
           Step 3: Generating your video
         </h1>
         <VideoGenerationProgress projectId={activeProject.id} />
+      </div>
+    );
+  }
+
+  // If status is 'complete', show final video
+  if (activeProject.status === "complete" && activeProject.finalVideoUrl) {
+    return (
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "2rem",
+        }}
+      >
+        <Stepper currentStep="complete" />
+        <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+          Your video is ready! 🎬
+        </h1>
+        <div style={{ marginBottom: "2rem" }}>
+          <video
+            controls
+            src={activeProject.finalVideoUrl}
+            style={{
+              width: "100%",
+              maxWidth: "800px",
+              borderRadius: "0.5rem",
+              margin: "0 auto",
+              display: "block",
+            }}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <a
+            href={activeProject.finalVideoUrl}
+            download
+            style={{
+              display: "inline-block",
+              padding: "0.75rem 1.5rem",
+              backgroundColor: "#0070f3",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: "0.25rem",
+              fontSize: "1rem",
+              fontWeight: "500",
+            }}
+          >
+            Download Video
+          </a>
+          <StartOverButton projectId={activeProject.id} />
+        </div>
+      </div>
+    );
+  }
+
+  // If status is 'error', show error display
+  if (activeProject.status === "error") {
+    // Try to get error message from jobs
+    const supabase = createClient();
+    const { data: errorJob } = await supabase
+      .from("jobs")
+      .select("error_message")
+      .eq("project_id", activeProject.id)
+      .eq("status", "error")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    const errorMessage = errorJob?.error_message
+      ? `Error: ${errorJob.error_message}`
+      : "An error occurred during video generation. Please try creating a new video.";
+
+    return (
+      <div
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+          padding: "2rem",
+        }}
+      >
+        <Stepper currentStep={currentStep} />
+        <ErrorDisplay errorMessage={errorMessage} />
       </div>
     );
   }

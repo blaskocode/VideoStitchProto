@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Scene } from "@/types/domain";
 
@@ -19,14 +19,7 @@ export function SceneFlowViewer({
   const [isLoading, setIsLoading] = useState(initialScenes.length === 0);
   const [isApproving, setIsApproving] = useState(false);
 
-  // Generate scenes if none exist
-  useEffect(() => {
-    if (scenes.length === 0 && !isGenerating && !isLoading) {
-      generateScenes();
-    }
-  }, []);
-
-  const generateScenes = async () => {
+  const generateScenes = useCallback(async () => {
     setIsGenerating(true);
     setIsLoading(true);
 
@@ -36,19 +29,36 @@ export function SceneFlowViewer({
       });
 
       if (!response.ok) {
-        throw new Error("Failed to generate scenes");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+        console.error("Error generating scenes:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      if (!data.scenes || data.scenes.length === 0) {
+        throw new Error("No scenes were generated");
+      }
       setScenes(data.scenes || []);
     } catch (error) {
       console.error("Error generating scenes:", error);
-      alert("Failed to generate scenes. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to generate scenes. Please try again.";
+      alert(`Failed to generate scenes: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
       setIsLoading(false);
     }
-  };
+  }, [projectId]);
+
+  // Generate scenes if none exist on mount
+  useEffect(() => {
+    // If no scenes exist and we're not already generating, trigger generation
+    // Note: isLoading might be true initially, but we still want to generate
+    if (scenes.length === 0 && !isGenerating) {
+      generateScenes();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount - we intentionally only check initial state
 
   const handleApprove = async () => {
     setIsApproving(true);

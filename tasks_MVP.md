@@ -701,12 +701,12 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Static music options for MVP**
+- [x] 1. **Static music options for MVP**
 
    * Place 3 stock music files in storage (or referenced external URLs).
-   * Map them to simple mood tags like “upbeat”, “ambient”, “dramatic”.
+   * Map them to simple mood tags like "upbeat", "ambient", "dramatic".
 
-- [ ] 2. **API: get suggested tracks**
+- [x] 2. **API: get suggested tracks**
 
    * Route: `app/api/music/options/route.ts`
    * `GET`:
@@ -714,24 +714,29 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Accepts `projectId` & mood.
      * Return 3 track objects: `{ id, name, url, moodTag }`.
 
-- [ ] 3. **UI: Music selection screen**
+- [x] 3. **UI: Music selection screen**
 
    * Component: `MusicSelector`.
    * Shows 3 tracks:
 
      * Play button (basic HTML5 audio).
-     * “Select this track” button.
+     * "Select this track" button.
    * On select:
 
      * Store selected track in `projects` as `musicTrackId` (add column).
 
-- [ ] 4. **DB schema update**
+- [x] 4. **DB schema update**
 
    * Add `music_track_id TEXT` to `projects`.
+   * ✅ Already exists in schema (created in PR 0.2)
 
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `lib/music.ts` - Static music options and mood mapping
+- `app/api/music/options/route.ts` - API to get music options based on project mood
+- `app/api/projects/[projectId]/music/select/route.ts` - API to save selected music track
+- `app/create/components/MusicSelector.tsx` - UI component for music selection with play/select buttons
+- `app/create/page.tsx` - Updated to show music selector when videos are complete but no music selected
 ---
 
 ### PR 5.2 – FFmpeg Composition Worker
@@ -740,17 +745,17 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Decide worker placement**
+- [x] 1. **Decide worker placement**
 
    * Option: add a `scripts/worker/compose.ts` file that can run as a Node script (triggered by API route).
    * For MVP, you can implement composition directly in an API route if video durations and sizes are small, but ideally separate.
 
-- [ ] 2. **Install FFmpeg**
+- [x] 2. **Install FFmpeg**
 
    * Add dependency for Node wrapper: `fluent-ffmpeg` or call `ffmpeg` CLI spawn.
    * Ensure FFmpeg is available in runtime environment.
 
-- [ ] 3. **Composition function**
+- [x] 3. **Composition function**
 
    * File: `lib/composeVideo.ts`:
 
@@ -771,7 +776,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
        * Upload final MP4 to Supabase Storage.
        * Return final video URL.
 
-- [ ] 4. **API: trigger composition**
+- [x] 4. **API: trigger composition**
 
    * Route: `app/api/projects/[projectId]/compose/route.ts`
    * `POST`:
@@ -783,18 +788,22 @@ I’ll write it so an LLM could pick up any PR and just start building.
        * Save `final_video_url` to project.
        * Set `status = 'complete'`.
 
-- [ ] 5. **UI: Rendering progress**
+- [x] 5. **UI: Rendering progress**
 
-   * After user selects music and triggers “Generate final video”:
+   * After user selects music and triggers "Generate final video":
 
-     * Show a “Rendering…” screen.
+     * Show a "Rendering…" screen.
      * Poll `GET /api/projects/[projectId]/status`:
 
        * If `status = 'complete'` → show final video player.
 
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `package.json` - Added fluent-ffmpeg and @types/fluent-ffmpeg dependencies
+- `lib/composeVideo.ts` - Video composition function using FFmpeg to stitch clips and add music
+- `app/api/projects/[projectId]/compose/route.ts` - API route to trigger video composition
+- `app/create/components/VideoCompositionProgress.tsx` - UI component for composition progress
+- `app/create/page.tsx` - Updated to show composition progress and final video player
 ---
 
 ## Phase 6 – Final Output & UX Polish
@@ -805,47 +814,47 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Result page**
+- [x] 1. **Result page**
 
    * In `app/create/page.tsx`, when `status = 'complete'`:
 
      * Show embedded `<video>` with `src={project.finalVideoUrl}`.
-     * Add “Download” button linking directly to MP4 URL.
+     * Add "Download" button linking directly to MP4 URL.
      * Optionally show:
 
-       * “Restart” / “Create another video”.
+       * "Restart" / "Create another video".
 
-- [ ] 2. **Basic styling**
+- [x] 2. **Basic styling**
 
    * Centered layout, simple but clean design.
    * Clear success state text:
 
-     * “Your video is ready 🎬”.
+     * "Your video is ready 🎬".
 
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `app/create/page.tsx` - Final video screen with embedded player, download button, and "Create Another Video" button
 ---
 
 ### PR 6.2 – Error Handling & Recovery
 
-**Goal:** Ensure pipeline doesn’t silently fail.
+**Goal:** Ensure pipeline doesn't silently fail.
 
 **Tasks:**
 
-- [ ] 1. **API-level error responses**
+- [x] 1. **API-level error responses**
 
    * Consistent JSON shape: `{ error: string }` when failure.
    * Handle missing project, missing session token, invalid status transitions.
 
-- [ ] 2. **UI error states**
+- [x] 2. **UI error states**
 
    * If any API call fails:
 
      * Show a friendly error message.
-     * Provide a “Try again” or “Restart flow” option.
+     * Provide a "Try again" or "Restart flow" option.
 
-- [ ] 3. **Job retry logic**
+- [x] 3. **Job retry logic**
 
    * In webhook handler:
 
@@ -853,7 +862,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * If retries < 2 → requeue run.
      * Else → mark project `status = 'error'`.
 
-- [ ] 4. **Error display**
+- [x] 4. **Error display**
 
    * If project `status = 'error'`:
 
@@ -862,7 +871,11 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `app/api/webhook/replicate/route.ts` - Updated to track retries and mark projects as error when max retries exceeded
+- `app/create/components/ErrorDisplay.tsx` - UI component for displaying errors with friendly messages and restart option
+- `app/create/page.tsx` - Updated to show error display when project status is 'error'
+- All API routes already have consistent error response format `{ error: string }`
+- Client components already have error handling with try-catch blocks and user-friendly alerts
 ---
 
 ## Phase 7 – Observability, Cost Logging, & Deployment Prep
@@ -873,7 +886,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Add columns**
+- [x] 1. **Add columns**
 
    * `jobs`:
 
@@ -883,7 +896,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * `total_cost NUMERIC`
      * `total_generation_ms BIGINT`
 
-- [ ] 2. **Update Replicate helper**
+- [x] 2. **Update Replicate helper**
 
    * When run finishes:
 
@@ -891,14 +904,14 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Calculate run duration.
      * Update `jobs.cost` and `jobs.duration_ms`.
 
-- [ ] 3. **Project rollup**
+- [x] 3. **Project rollup**
 
    * After final composition:
 
      * Sum all `jobs.cost` ↦ `projects.total_cost`.
      * Sum all `jobs.duration_ms` ↦ `projects.total_generation_ms`.
 
-- [ ] 4. **Debug dashboard (simple)**
+- [x] 4. **Debug dashboard (simple)**
 
    * Create `app/debug/[projectId]/page.tsx`:
 
@@ -908,7 +921,10 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `supabase/migrations/001_initial_schema.sql` - Schema already includes cost and duration columns
+- `app/api/webhook/replicate/route.ts` - Updated to calculate and store duration_ms and cost for video/image generation jobs
+- `app/api/projects/[projectId]/compose/route.ts` - Updated to track composition duration and roll up total cost/generation time
+- `app/debug/[projectId]/page.tsx` - Debug dashboard showing project details, jobs table, costs, and performance metrics
 ---
 
 ### PR 7.2 – Deployment & README

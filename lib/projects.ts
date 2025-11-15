@@ -18,7 +18,6 @@ export async function getActiveProject(
     .from("projects")
     .select("*")
     .eq("session_token", sessionToken)
-    .neq("status", "complete")
     .order("created_at", { ascending: false })
     .limit(1)
     .single();

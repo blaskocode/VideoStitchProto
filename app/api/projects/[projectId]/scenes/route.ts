@@ -55,6 +55,9 @@ export async function POST(
     });
 
     // Save scenes to project
+    console.log(`[Scenes] Saving ${scenes.length} scenes to project ${projectId}`);
+    console.log(`[Scenes] Scenes data:`, JSON.stringify(scenes, null, 2));
+    
     const { error: updateError } = await supabase
       .from("projects")
       .update({
@@ -63,12 +66,21 @@ export async function POST(
       .eq("id", projectId);
 
     if (updateError) {
-      console.error("Error saving scenes:", updateError);
+      console.error("[Scenes] Error saving scenes:", updateError);
       return NextResponse.json(
         { error: "Failed to save scenes" },
         { status: 500 }
       );
     }
+
+    // Verify the update worked
+    const { data: updatedProject } = await supabase
+      .from("projects")
+      .select("scenes")
+      .eq("id", projectId)
+      .single();
+    
+    console.log(`[Scenes] Verification - saved scenes count:`, (updatedProject?.scenes as any[])?.length || 0);
 
     return NextResponse.json({ scenes });
   } catch (error) {

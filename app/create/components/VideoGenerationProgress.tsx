@@ -29,6 +29,7 @@ export function VideoGenerationProgress({
   const router = useRouter();
   const [progress, setProgress] = useState<ProgressData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     const pollStatus = async () => {
@@ -81,6 +82,33 @@ export function VideoGenerationProgress({
   const { total, completed, inProgress, current } = progress.progress;
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
   const allComplete = completed === total && total > 0;
+
+  const handleStartOver = async () => {
+    if (!confirm("Are you sure you want to start over? This will delete the current project.")) {
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      // Delete the current project by updating session
+      const response = await fetch("/api/projects/start", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to reset project");
+      }
+
+      // Redirect to home to start fresh
+      router.push("/");
+    } catch (error) {
+      console.error("Error resetting project:", error);
+      alert("Failed to reset project. Please refresh the page and try again.");
+      setIsResetting(false);
+    }
+  };
 
   return (
     <div
@@ -167,6 +195,30 @@ export function VideoGenerationProgress({
           </div>
         </>
       )}
+
+      <div
+        style={{
+          marginTop: "2rem",
+          textAlign: "center",
+        }}
+      >
+        <button
+          onClick={handleStartOver}
+          disabled={isResetting}
+          style={{
+            padding: "0.75rem 1.5rem",
+            backgroundColor: isResetting ? "#ccc" : "transparent",
+            color: isResetting ? "#666" : "#dc2626",
+            border: `1px solid ${isResetting ? "#ccc" : "#dc2626"}`,
+            borderRadius: "0.25rem",
+            fontSize: "0.875rem",
+            cursor: isResetting ? "not-allowed" : "pointer",
+            fontWeight: "500",
+          }}
+        >
+          {isResetting ? "Resetting..." : "Start Over"}
+        </button>
+      </div>
     </div>
   );
 }

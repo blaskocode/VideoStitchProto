@@ -12,7 +12,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Replicate webhook payload structure
-    const { id: replicateRunId, status, output, error: replicateError } = body;
+    const { 
+      id: replicateRunId, 
+      status, 
+      output, 
+      error: replicateError,
+      metrics,
+      created_at,
+      completed_at,
+      started_at
+    } = body;
 
     if (!replicateRunId) {
       return NextResponse.json(
@@ -40,6 +49,31 @@ export async function POST(request: NextRequest) {
 
     const project = job.projects as any;
 
+    // Calculate duration in milliseconds
+    let durationMs: number | null = null;
+    if (completed_at && started_at) {
+      const startTime = new Date(started_at).getTime();
+      const endTime = new Date(completed_at).getTime();
+      durationMs = endTime - startTime;
+    } else if (completed_at && job.created_at) {
+      // Fallback: use job created_at if started_at not available
+      const startTime = new Date(job.created_at).getTime();
+      const endTime = new Date(completed_at).getTime();
+      durationMs = endTime - startTime;
+    }
+
+    // Estimate cost based on job type and duration
+    // Replicate pricing varies by model, but for MVP we'll use rough estimates
+    let estimatedCost: number | null = null;
+    if (job.type === "video-gen" && durationMs) {
+      // Rough estimate: $0.01 per second of video generation
+      // This is a placeholder - actual costs vary by model
+      estimatedCost = (durationMs / 1000) * 0.01;
+    } else if (job.type === "image-gen") {
+      // Rough estimate: $0.001 per image
+      estimatedCost = 0.001;
+    }
+
     if (status === "succeeded" && output) {
       // Video generation succeeded
       let videoUrl: string | undefined;
@@ -60,12 +94,14 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Update job status
+      // Update job status with duration and cost
       await supabase
         .from("jobs")
         .update({
           status: "success",
           output_urls: videoUrl ? [videoUrl] : (Array.isArray(output) ? output : [output]),
+          duration_ms: durationMs,
+          cost: estimatedCost,
         })
         .eq("id", job.id);
 
@@ -87,21 +123,32 @@ export async function POST(request: NextRequest) {
       const errorMessage =
         replicateError || "Video generation failed or was canceled";
 
+      const currentRetries = (job.retries || 0);
+      const maxRetries = 2; // Max 2 retries (3 total attempts)
+      const newRetries = currentRetries + 1;
+
+      // Update job with error and retry count
       await supabase
         .from("jobs")
         .update({
           status: "error",
           error_message: errorMessage,
+          retries: newRetries,
         })
         .eq("id", job.id);
 
-      // Optionally trigger retry if below max attempts
-      const retries = (job.retries || 0) + 1;
-      const maxRetries = 3;
-
-      if (retries < maxRetries) {
-        // TODO: Implement retry logic if needed
-        console.log(`Job ${job.id} failed, retry ${retries}/${maxRetries}`);
+      // If max retries exceeded, mark project as error
+      if (newRetries >= maxRetries) {
+        await supabase
+          .from("projects")
+          .update({
+            status: "error",
+          })
+          .eq("id", job.project_id);
+        
+        console.log(`Job ${job.id} failed after ${newRetries} retries. Project marked as error.`);
+      } else {
+        console.log(`Job ${job.id} failed, retry ${newRetries}/${maxRetries}. Manual retry may be needed.`);
       }
     }
 

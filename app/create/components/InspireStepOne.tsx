@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { MoodboardGenerationProgress } from "./MoodboardGenerationProgress";
 
 const MOOD_OPTIONS = [
   "Exciting",
@@ -18,6 +19,9 @@ export function InspireStepOne() {
   const [productPrompt, setProductPrompt] = useState("");
   const [moodPrompt, setMoodPrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [showProgress, setShowProgress] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +30,7 @@ export function InspireStepOne() {
     setIsSubmitting(true);
 
     try {
+      console.log("Submitting project creation...");
       const response = await fetch("/api/projects/start", {
         method: "POST",
         headers: {
@@ -37,23 +42,74 @@ export function InspireStepOne() {
         }),
       });
 
+      console.log("Response status:", response.status);
+
       if (!response.ok) {
-        throw new Error("Failed to create project");
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        console.error("API error:", errorData);
+        throw new Error(errorData.error || "Failed to create project");
       }
 
       const data = await response.json();
-      // Refresh to show updated project status
-      router.refresh();
+      console.log("✅ Project created successfully:", data);
+      
+      // Set project ID and show progress screen
+      setProjectId(data.projectId);
+      setShowProgress(true);
+      
+      // Automatically trigger moodboard generation (this is async and will take time)
+      console.log("🎨 Triggering moodboard generation...");
+      
+      // Start moodboard generation in the background
+      fetch(`/api/projects/${data.projectId}/moodboards`, {
+        method: "POST",
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("✅ Moodboards generation completed");
+            // The progress component will detect moodboards and refresh
+          } else {
+            console.error("❌ Failed to generate moodboards");
+            setShowProgress(false);
+            setSuccessMessage("Failed to generate moodboards. Please try again.");
+          }
+        })
+        .catch((error) => {
+          console.error("❌ Error triggering moodboard generation:", error);
+          setShowProgress(false);
+          setSuccessMessage("Error generating moodboards. Please refresh and try again.");
+        });
     } catch (error) {
       console.error("Error creating project:", error);
-      alert("Failed to create project. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to create project. Please try again.";
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Show progress screen if moodboards are being generated
+  if (showProgress && projectId) {
+    return <MoodboardGenerationProgress projectId={projectId} />;
+  }
+
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
+      {successMessage && (
+        <div
+          style={{
+            padding: "1rem",
+            marginBottom: "1.5rem",
+            backgroundColor: "#d4edda",
+            border: "1px solid #c3e6cb",
+            borderRadius: "0.5rem",
+            color: "#155724",
+          }}
+        >
+          {successMessage}
+        </div>
+      )}
+      <form onSubmit={handleSubmit}>
       <div style={{ marginBottom: "2rem" }}>
         <label
           htmlFor="product-prompt"
@@ -168,6 +224,7 @@ export function InspireStepOne() {
         {isSubmitting ? "Creating..." : "Next"}
       </button>
     </form>
+    </div>
   );
 }
 
