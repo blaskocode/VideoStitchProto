@@ -240,11 +240,23 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
      * `getActiveProject(sessionToken: string)`: returns latest "in-progress" project (status != 'complete') or `null`.
 
+- [x] 4. **Bug Fix: Environment variables setup**
+
+   * Create `.env` file from `.env.example` template
+   * Document that users need to fill in actual Supabase, Replicate, and OpenAI API keys
+   * Add setup instructions to README or setup guide
+   * Created comprehensive `SETUP_SUPABASE.md` guide with step-by-step instructions
+
 **Relevant Files:**
 - `package.json` - Added uuid and @types/uuid dependencies
-- `lib/session.ts` - Cookie helper functions for session token management
-- `app/layout.tsx` - Updated to ensure session token exists for all visitors
+- `lib/session.ts` - Cookie helper functions for session token management (read-only, middleware creates tokens)
+- `middleware.ts` - Next.js middleware that creates session token cookie for all visitors (required for cookie modification in App Router)
+- `app/layout.tsx` - Simplified to not modify cookies (middleware handles this)
 - `lib/projects.ts` - Utility to fetch active project by session token
+- `.env` - Environment variables file (created from .env.example)
+- `SETUP_SUPABASE.md` - Comprehensive Supabase setup guide
+
+**Note:** Session token creation was moved to `middleware.ts` because Next.js App Router only allows cookie modification in middleware, route handlers, or server actions. The original approach of setting cookies in `layout.tsx` caused errors.
 
 ---
 
@@ -425,20 +437,20 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **LLM selection & helper**
+- [x] 1. **LLM selection & helper**
 
-   * Decide: use OpenAI or another LLM provider (this wasn’t specified, but we can assume something like OpenAI or Replicate’s LLMs).
+   * Decide: use OpenAI or another LLM provider (this wasn't specified, but we can assume something like OpenAI or Replicate's LLMs).
    * Create `lib/llmClient.ts` with:
 
      * `generateStorylines({ productPrompt, moodPrompt, likedMoodboards }): Promise<string[]>`.
 
-- [ ] 2. **Prompt template for storylines**
+- [x] 2. **Prompt template for storylines**
 
    * Create `prompts/storylinePrompt.ts` exporting a function returning a prompt like:
 
-     * “You are an expert ad creative director. Given PRODUCT and MOOD and STYLE NOTES, propose 3 distinct 15–30 second ad concepts, each in this format: Title, 2-3 sentence overview, then bullet list of 3-5 scenes.”
+     * "You are an expert ad creative director. Given PRODUCT and MOOD and STYLE NOTES, propose 3 distinct 15–30 second ad concepts, each in this format: Title, 2-3 sentence overview, then bullet list of 3-5 scenes."
 
-- [ ] 3. **API: generate storyline options**
+- [x] 3. **API: generate storyline options**
 
    * Route: `app/api/projects/[projectId]/storylines/route.ts`
    * `POST`:
@@ -448,7 +460,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Store storyline options temporarily in project row (e.g., in a `storyline_options` JSONB field or a separate in-memory cache if you add that).
      * Return serialized options.
 
-- [ ] 4. **UI: Storyline selection screen**
+- [x] 4. **UI: Storyline selection screen**
 
    * Component: `StorylineSelector`.
    * Display 3 tiles, each:
@@ -458,21 +470,29 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Bulleted list of scenes (text).
    * Include:
 
-     * “Select this storyline” button.
+     * "Select this storyline" button.
    * On selection:
 
      * Call API to save chosen storyline.
 
-- [ ] 5. **API: save chosen storyline**
+- [x] 5. **API: save chosen storyline**
 
    * Route: `app/api/projects/[projectId]/storylines/select/route.ts`
    * `POST` body: `{ selectedStorylineIndex: number }` or direct text.
    * Store final selected storyline in `projects.storyline_option`.
    * Update `status` to `'story'`.
 
-
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `package.json` - Added openai dependency
+- `env.d.ts` - Added OPENAI_API_KEY to environment types
+- `.env.example` - Added OPENAI_API_KEY placeholder
+- `lib/llmClient.ts` - OpenAI client helper for generating storylines
+- `prompts/storylinePrompt.ts` - Prompt template for storyline generation
+- `app/api/projects/[projectId]/storylines/route.ts` - API to generate and get storyline options
+- `app/api/projects/[projectId]/storylines/select/route.ts` - API to save selected storyline
+- `app/create/components/StorylineSelector.tsx` - UI component for storyline selection
+- `app/create/page.tsx` - Updated to show storyline selector when appropriate
+- `supabase/migrations/002_add_storyline_options.sql` - Migration to add storyline_options field
 ---
 
 ### PR 2.2 – Scene Tile Expansion (Detailed Blurbs, Still Text-Only)
@@ -481,7 +501,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Prompt template for scenes**
+- [x] 1. **Prompt template for scenes**
 
    * File: `prompts/scenePrompt.ts`:
 
@@ -495,13 +515,13 @@ I’ll write it so an LLM could pick up any PR and just start building.
        * Break into 3–5 distinct scenes.
        * For each: setting, action, camera motion, emotion, transitions.
 
-- [ ] 2. **LLM helper function**
+- [x] 2. **LLM helper function**
 
    * In `lib/llmClient.ts`:
 
      * `generateScenesForStoryline(...)` returning an array of `Scene` objects with only text fields.
 
-- [ ] 3. **API: generate scenes**
+- [x] 3. **API: generate scenes**
 
    * Route: `app/api/projects/[projectId]/scenes/route.ts`
    * `POST`:
@@ -512,7 +532,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Save scenes into `projects.scenes` as JSONB.
      * Return scenes data.
 
-- [ ] 4. **UI: Scene flow review**
+- [x] 4. **UI: Scene flow review**
 
    * Component: `SceneFlowViewer`.
    * show 3–5 cards in order:
@@ -521,10 +541,10 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Blurb (multi-line)
    * Buttons:
 
-     * “Looks good → Continue to visual generation”.
+     * "Looks good → Continue to visual generation".
    * For MVP: no edit / no reordering.
 
-- [ ] 5. **State update**
+- [x] 5. **State update**
 
    * On approve:
 
@@ -544,13 +564,13 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Prompt refinement for scene images**
+- [x] 1. **Prompt refinement for scene images**
 
    * Extend `scene.blurb` before sending to Replicate by appending:
 
-     * “Cinematic, realistic commercial, 35mm lens, soft depth of field, professional lighting, high production value, 16:9 (or 9:16) frame.”
+     * "Cinematic, realistic commercial, 35mm lens, soft depth of field, professional lighting, high production value, 16:9 (or 9:16) frame."
 
-- [ ] 2. **Replicate helper function**
+- [x] 2. **Replicate helper function**
 
    * In `lib/replicateClient.ts`:
 
@@ -560,7 +580,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
        * Uploads image to Supabase Storage.
        * Returns public URL.
 
-- [ ] 3. **API: generate images for all scenes**
+- [x] 3. **API: generate images for all scenes**
 
    * Route: `app/api/projects/[projectId]/scenes/images/route.ts`
    * `POST`:
@@ -571,7 +591,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Save updated scenes JSON to DB.
      * Return scenes with image URLs.
 
-- [ ] 4. **UI: visual storyboard preview**
+- [x] 4. **UI: visual storyboard preview**
 
    * Component: `VisualStoryboard`.
    * Displays:
@@ -580,11 +600,16 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Scene blurb
    * Button:
 
-     * “Looks good → Generate my video”.
-
+     * "Looks good → Generate my video".
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `lib/replicateClient.ts` - Updated generateSceneImage() to upload to Supabase Storage
+- `app/api/projects/[projectId]/scenes/images/route.ts` - API to generate images for all scenes
+- `app/api/projects/[projectId]/scenes/images/approve/route.ts` - API to approve storyboard and update status to 'rendering'
+- `app/create/components/VisualStoryboard.tsx` - UI component for visual storyboard preview
+- `app/create/components/SceneFlowViewer.tsx` - Updated to trigger image generation on approve
+- `app/create/page.tsx` - Updated to show VisualStoryboard when scenes have images
+- `SETUP_SUPABASE.md` - Updated to include 'scenes' storage bucket setup
 ---
 
 ## Phase 4 – Video Generation (Scene Clips)
@@ -595,15 +620,15 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Video prompt builder**
+- [x] 1. **Video prompt builder**
 
    * File: `prompts/videoPrompt.ts`:
 
      * Take scene blurb, product prompt, mood, and optionally the image.
      * Build a text prompt suitable for video model.
-     * Example extras: “5 seconds, smooth camera motion, product hero shot, cinematic, ad style.”
+     * Example extras: "5 seconds, smooth camera motion, product hero shot, cinematic, ad style."
 
-- [ ] 2. **Replicate video helper**
+- [x] 2. **Replicate video helper**
 
    * In `lib/replicateClient.ts`:
 
@@ -613,7 +638,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
        * Uses `imageUrl` as input if model supports it (image-to-video).
        * Returns `replicateRunId`.
 
-- [ ] 3. **API: start video generation for project**
+- [x] 3. **API: start video generation for project**
 
    * Route: `app/api/projects/[projectId]/videos/start/route.ts`
    * `POST`:
@@ -627,7 +652,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Update project `status = 'rendering'`.
      * Return `{ jobIds }`.
 
-- [ ] 4. **Replicate webhook handler**
+- [x] 4. **Replicate webhook handler**
 
    * Route: `app/api/webhook/replicate/route.ts`
    * `POST`:
@@ -638,13 +663,13 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
        * Upload video output to Supabase Storage if needed.
        * Update `jobs.status = 'success'` and `jobs.output_urls`.
-       * Also update related `scene.videoUrl`.
+     * Also update related `scene.videoUrl`.
      * On error:
 
        * Set `jobs.status = 'error'` and `error_message`.
        * Optionally trigger retry if below max attempts.
 
-- [ ] 5. **Poll or live update UI**
+- [x] 5. **Poll or live update UI**
 
    * For MVP:
 
@@ -653,11 +678,19 @@ I’ll write it so an LLM could pick up any PR and just start building.
        * GET `/api/projects/[projectId]/status` (new route).
      * Display progress:
 
-       * “Generating scene 1/4”, “2/4”, etc.
-
+       * "Generating scene 1/4", "2/4", etc.
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `prompts/videoPrompt.ts` - Prompt template for video generation
+- `lib/replicateClient.ts` - Added startVideoGeneration() function
+- `lib/storage.ts` - Added uploadVideoFromUrl() function for video uploads
+- `app/api/projects/[projectId]/videos/start/route.ts` - API to start video generation for all scenes
+- `app/api/webhook/replicate/route.ts` - Webhook handler for Replicate prediction events
+- `app/api/projects/[projectId]/status/route.ts` - API to get project status and progress
+- `app/create/components/VideoGenerationProgress.tsx` - UI component for polling and displaying progress
+- `app/create/components/VisualStoryboard.tsx` - Updated to start video generation on approve
+- `app/create/page.tsx` - Updated to show VideoGenerationProgress when status is 'rendering'
+- `SETUP_SUPABASE.md` - Updated to include 'videos' storage bucket setup
 ---
 
 ## Phase 5 – Music Selection & Final Composition

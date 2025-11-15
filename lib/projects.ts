@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabaseClient";
 import type { Project } from "@/types/domain";
+import type { StorylineOption } from "@/lib/llmClient";
 
 /**
  * Fetches the latest active (in-progress) project for a given session token.

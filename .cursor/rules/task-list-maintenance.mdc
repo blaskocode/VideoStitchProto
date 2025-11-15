@@ -1,0 +1,77 @@
+# Task List Maintenance
+
+// Description: Ensures all new ideas, tasks, and bug fixes are added to the task list
+// Recommended Globs: **/tasks/**/*.md, **/tasks-*.md, **/tasks_*.md
+
+## Rule Description
+
+**MANDATORY**: Any idea, task, bug fix, or feature that is not already documented in the task list (`tasks_MVP.md`) MUST be added to the task list immediately, before implementation begins.
+
+## When to Add to Task List
+
+### Must Add:
+- ✅ New features or functionality discussed
+- ✅ Bug fixes discovered or reported
+- ✅ Technical improvements or optimizations
+- ✅ Refactoring tasks
+- ✅ Documentation updates
+- ✅ Testing requirements
+- ✅ Deployment tasks
+- ✅ Any work item that requires implementation
+
+### Examples:
+- "We should add error handling for X" → Add as sub-task
+- "This bug needs fixing" → Add as bug fix task
+- "Let's optimize the image generation" → Add as optimization task
+- "We need to add logging here" → Add as observability task
+
+## How to Add
+
+1. **Identify the appropriate PR/Phase** in `tasks_MVP.md`
+2. **Add as a sub-task** under the relevant PR
+3. **Use checkbox format**: `- [ ] Description of task`
+4. **Include context** if needed (why it's needed, what it should do)
+5. **Update "Relevant Files"** section when the task is completed
+
+## Format
+
+```markdown
+- [ ] **Task name**
+  * Description of what needs to be done
+  * Any additional context or requirements
+```
+
+## Enforcement
+
+- **Before starting work**: Check if the task exists in the task list
+- **If not found**: Add it first, then proceed
+- **During implementation**: If new subtasks emerge, add them immediately
+- **After completion**: Mark as `[x]` and update "Relevant Files"
+
+## AI Instructions
+
+When the AI or user suggests:
+1. A new feature
+2. A bug fix
+3. An improvement
+4. Any work item
+
+The AI MUST:
+1. First check if it exists in `tasks_MVP.md`
+2. If not found, add it to the appropriate section
+3. Then proceed with implementation (if approved)
+4. Mark as complete when done
+
+## Exception
+
+Only skip adding to task list if:
+- The item is already explicitly documented in the task list
+- It's a trivial typo fix or formatting change that takes < 1 minute
+
+## Purpose
+
+- Maintain comprehensive project documentation
+- Track all work items in one place
+- Ensure nothing falls through the cracks
+- Provide clear project roadmap
+- Enable better planning and estimation

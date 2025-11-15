@@ -10,6 +10,8 @@ The system follows a three-stage workflow with clear separation between frontend
 - **Server-side primary state**: Project state stored in Supabase Postgres
 - **Minimal global state**: Frontend uses minimal React state, primarily for UI interactions
 - **Session-based**: Anonymous session tokens via cookies (no authentication for MVP)
+  - **Implementation**: Session tokens created in Next.js middleware (`middleware.ts`) because App Router only allows cookie modification in middleware, route handlers, or server actions
+  - **Cookie**: HttpOnly, secure in production, 1-year expiry, path: `/`
 
 ### 2. Async Job Orchestration
 - **Jobs table**: Postgres `jobs` table tracks all async operations
@@ -58,9 +60,11 @@ User Input → API Route → Database Update → Async Job → Webhook → Datab
 - Frontend polls for completion
 
 ### 3. Session-Based Anonymous Access
-- Cookie-based session tokens
-- No user accounts required
+- Cookie-based session tokens (UUIDs)
+- No user accounts required for MVP
 - Projects tied to session tokens
+- **Implementation**: Tokens created in `middleware.ts` (Next.js App Router requirement - cookies can only be modified in middleware, route handlers, or server actions)
+- **Cookie settings**: HttpOnly, secure in production, sameSite: 'lax', 1-year expiry
 
 ### 4. Job Queue Pattern
 - All async work tracked in `jobs` table
@@ -182,10 +186,17 @@ When a file exceeds or is about to exceed 500 lines, split using these strategie
 **AI Instructions** (for AI agents working on this project):
 1. Regularly update the task list file after finishing any significant work
 2. Follow the completion protocol (mark sub-tasks `[x]`, mark parent `[x]` when all subtasks complete)
-3. Add newly discovered tasks
+3. **MANDATORY**: Add newly discovered tasks, ideas, bug fixes, or features to the task list BEFORE implementation
 4. Keep "Relevant Files" accurate and up to date
 5. Before starting work, check which sub-task is next
 6. After implementing a sub-task, update the file and then pause for user approval
+
+**Task List Maintenance Rule** (`.cursor/rules/task-list-maintenance.mdc`):
+- Any idea, task, bug fix, or feature not already in `tasks_MVP.md` MUST be added immediately
+- Check task list before starting any work
+- Add as sub-task under appropriate PR/Phase
+- Update "Relevant Files" when task is completed
+- Exception: Only skip for trivial typo fixes (< 1 minute)
 
 ### Communication Style
 **Rule Source**: `.cursor/rules/yoda-quotes.mdc` (alwaysApply: true)

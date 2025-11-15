@@ -9,7 +9,7 @@
 - ✅ Supabase client installed and configured
 - ✅ Database schema defined (projects and jobs tables)
 - ✅ TypeScript domain types created
-- ✅ Session token management via cookies
+- ✅ Session token management via middleware
 - ✅ Project fetching utilities
 - ✅ Landing page with mission statement
 - ✅ Creation flow route with project status routing
@@ -21,6 +21,22 @@
 - ✅ Moodboard generation API with Supabase Storage upload
 - ✅ Moodboard gallery UI with like/skip functionality
 - ✅ Save moodboard likes API
+- ✅ OpenAI client for storyline generation
+- ✅ Storyline generation API and UI
+- ✅ Storyline selection and saving
+- ✅ Scene generation prompt template
+- ✅ Scene generation LLM helper
+- ✅ Scene generation API
+- ✅ Scene flow review UI
+- ✅ Scene image generation with Replicate
+- ✅ Scene image upload to Supabase Storage
+- ✅ Visual storyboard preview UI
+- ✅ Video generation prompt template
+- ✅ Video generation with Replicate (image-to-video and text-to-video)
+- ✅ Video job creation and tracking
+- ✅ Replicate webhook handler for async video completion
+- ✅ Video upload to Supabase Storage
+- ✅ Video generation progress UI with polling
 
 ## Relevant Files (PR 0.1)
 
@@ -47,14 +63,14 @@
 - [x] PR 1.3: Moodboard Generation via Replicate
 
 ### Phase 2 – Crafting the Story
-- [ ] PR 2.1: Storyline Generation (Text-Only Tiles)
-- [ ] PR 2.2: Scene Tile Expansion (Detailed Blurbs)
+- [x] PR 2.1: Storyline Generation (Text-Only Tiles)
+- [x] PR 2.2: Scene Tile Expansion (Detailed Blurbs)
 
 ### Phase 3 – Scene Image Generation
-- [ ] PR 3.1: Image Gen for Scenes
+- [x] PR 3.1: Image Gen for Scenes
 
 ### Phase 4 – Video Generation
-- [ ] PR 4.1: Video Job Creation & Replicate Calls
+- [x] PR 4.1: Video Job Creation & Replicate Calls
 
 ### Phase 5 – Music Selection & Final Composition
 - [ ] PR 5.1: Music Options & Selection
@@ -70,13 +86,13 @@
 
 ## Current Status
 
-**Overall Progress**: 43% (6/14 PRs complete)
+**Overall Progress**: 71% (10/14 PRs complete)
 
-**Current Phase**: Phase 1 - Inspire Me Flow ✅ COMPLETE
+**Current Phase**: Phase 4 - Video Generation (in progress)
 
-**Next Milestone**: Phase 2 - Crafting the Story
+**Next Milestone**: Complete Phase 4 (Video Generation)
 
-**Next Task**: PR 2.1 - Storyline Generation (Text-Only Tiles)
+**Next Task**: PR 4.2 - Video Composition (if needed) or Phase 5 - Music Selection
 
 ## Known Issues
 

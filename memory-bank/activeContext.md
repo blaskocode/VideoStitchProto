@@ -2,7 +2,7 @@
 
 ## Current Work Focus
 
-**Status**: Phase 1 complete! ✅ Inspire Me Flow fully implemented. Ready to begin Phase 2 - Crafting the Story.
+**Status**: Phase 4 in progress - PR 4.1 complete. Video generation infrastructure ready.
 
 ## Recent Changes
 
@@ -10,10 +10,15 @@
 - Project documentation reviewed and synthesized into Memory Bank
 - Cursor rules comprehensively reviewed and fully incorporated into Memory Bank
 - **Phase 0 Complete**: All foundation work done (PRs 0.1, 0.2, 0.3)
-- **PR 1.1 Complete**: Landing page and creation flow UI with stepper
-- **PR 1.2 Complete**: Product and mood prompts with project creation API
-- **PR 1.3 Complete**: Moodboard generation via Replicate with gallery UI
-- **Phase 1 Complete**: Inspire Me Flow fully implemented! Ready for Phase 2 - Crafting the Story
+- **Phase 1 Complete**: Inspire Me Flow fully implemented (PRs 1.1, 1.2, 1.3)
+- **Cookie Issue Fixed**: Moved session token creation to middleware (Next.js App Router requirement)
+- **PR 2.1 Complete**: Storyline generation with OpenAI, selection UI, and API endpoints
+- **PR 2.2 Complete**: Scene generation with detailed blurbs, review UI, and approval flow
+- **Phase 2 Complete**: All story crafting work done
+- **PR 3.1 Complete**: Scene image generation with Replicate, storage upload, and visual storyboard
+- **Phase 3 Complete**: Scene image generation done
+- **PR 4.1 Complete**: Video generation jobs, Replicate integration, webhook handler, and progress UI
+- **Phase 4 In Progress**: Video generation infrastructure complete
 
 ## Next Steps
 
@@ -29,18 +34,16 @@ All Inspire Me Flow work completed:
 - ✅ PR 1.2: Product & Mood Prompt + Project Creation
 - ✅ PR 1.3: Moodboard Generation via Replicate
 
-### Immediate (Phase 2 - Crafting the Story)
-1. **PR 2.1**: Storyline Generation (Text-Only Tiles)
-   - LLM selection and helper
-   - Prompt template for storylines
-   - API to generate storyline options
-   - UI for storyline selection
+### Phase 2 - ✅ COMPLETE
+- ✅ PR 2.1: Storyline Generation (Text-Only Tiles)
+- ✅ PR 2.2: Scene Tile Expansion (Detailed Blurbs)
 
-2. **PR 2.2**: Scene Tile Expansion (Detailed Blurbs)
-   - Prompt template for scenes
-   - LLM helper for scene generation
-   - API to generate scenes
-   - UI for scene flow review
+### Phase 3 - ✅ COMPLETE
+- ✅ PR 3.1: Image Gen for Scenes
+
+### Phase 4 - In Progress
+- ✅ PR 4.1: Video Job Creation & Replicate Calls - COMPLETE
+- **Next**: Video composition and final output (Phase 5 or PR 4.2)
 
 ## Active Decisions and Considerations
 

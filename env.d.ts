@@ -4,6 +4,7 @@ declare namespace NodeJS {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
     SUPABASE_SERVICE_ROLE_KEY?: string;
     REPLICATE_API_TOKEN: string;
+    OPENAI_API_KEY: string;
     APP_BASE_URL: string;
   }
 }

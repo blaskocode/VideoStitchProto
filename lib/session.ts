@@ -1,37 +1,25 @@
 import { cookies } from "next/headers";
-import { v4 as uuidv4 } from "uuid";
 
 const SESSION_TOKEN_COOKIE_NAME = "session_token";
-const SESSION_TOKEN_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
 
 /**
- * Gets or creates a session token for the current visitor.
- * If a session token cookie exists, returns it.
- * Otherwise, generates a new UUID, sets it as a cookie, and returns it.
+ * Gets the session token from cookies.
+ * Middleware ensures the token exists, so this should always return a value.
  *
  * @returns The session token string
  */
 export async function getOrCreateSessionToken(): Promise<string> {
   const cookieStore = await cookies();
-  const existingToken = cookieStore.get(SESSION_TOKEN_COOKIE_NAME);
+  const token = cookieStore.get(SESSION_TOKEN_COOKIE_NAME);
 
-  if (existingToken?.value) {
-    return existingToken.value;
+  // Middleware ensures token exists, but handle gracefully if it doesn't
+  if (!token?.value) {
+    throw new Error(
+      "Session token not found - middleware should have created it"
+    );
   }
 
-  // Generate new UUID
-  const newToken = uuidv4();
-
-  // Set cookie with HttpOnly, secure in production, long expiry
-  cookieStore.set(SESSION_TOKEN_COOKIE_NAME, newToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_TOKEN_MAX_AGE,
-  });
-
-  return newToken;
+  return token.value;
 }
 
 /**

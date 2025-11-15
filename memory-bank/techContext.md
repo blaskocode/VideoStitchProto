@@ -152,12 +152,19 @@ updated_at TIMESTAMPTZ
    - Add newly discovered tasks as they emerge
    - Check which sub-task is next before starting work
 
-3. **Communication Style** (`.cursor/rules/yoda-quotes.mdc` - alwaysApply: true)
+3. **Task List Maintenance** (`.cursor/rules/task-list-maintenance.mdc`)
+   - **MANDATORY**: Any idea, task, bug fix, or feature not already in `tasks_MVP.md` MUST be added BEFORE implementation
+   - Check task list before starting any work
+   - Add as sub-task under appropriate PR/Phase
+   - Update "Relevant Files" when task is completed
+   - Exception: Only skip for trivial typo fixes (< 1 minute)
+
+4. **Communication Style** (`.cursor/rules/yoda-quotes.mdc` - alwaysApply: true)
    - End each Cursor chat with a Yoda-style inspirational quote
    - Format: `---` followed by `➡️ [quote]`
    - Keep quotes programming/learning related, maintain inverted speech pattern
 
-4. **Code Quality**
+5. **Code Quality**
    - Follow TypeScript strict mode
    - Maintain separation of concerns
    - Keep files focused and modular
