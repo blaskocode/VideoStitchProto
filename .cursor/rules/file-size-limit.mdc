@@ -1,0 +1,215 @@
+---
+description: Enforces a strict 500-line maximum for all code files to maintain readability and modularity
+globs: 
+  - "**/*.swift"
+  - "**/*.ts"
+  - "**/*.js"
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.py"
+  - "**/*.go"
+  - "**/*.java"
+  - "**/*.kt"
+---
+
+# File Size Limit: 500 Lines Maximum
+
+## Hard Requirement
+
+**ALL code files MUST be kept under 500 lines of code.** This is a non-negotiable requirement for maintaining code quality, readability, and modularity.
+
+## When This Rule Applies
+
+1. **Before creating any new file**: Plan the implementation to stay under 500 lines
+2. **Before adding new code**: Check current line count and ensure additions won't exceed the limit
+3. **During refactoring**: If a file has already exceeded 500 lines, it MUST be split immediately
+4. **During code review**: Flag any file approaching or exceeding 500 lines
+
+## How to Count Lines
+
+- Count all lines including:
+  - Code
+  - Comments
+  - Blank lines
+  - Imports/dependencies
+- Exclude only:
+  - Auto-generated files (explicitly marked as such)
+  - Configuration files (JSON, YAML, etc.)
+
+## How to Split Files Intelligently
+
+When a file exceeds or is about to exceed 500 lines, split it using these strategies:
+
+### 1. **By Responsibility (Single Responsibility Principle)**
+Split based on distinct responsibilities:
+
+**Example: Large ViewModel**
+```
+Before (600 lines):
+- UserViewModel.swift (auth + profile + settings + notifications)
+
+After:
+- UserAuthViewModel.swift (authentication logic - 200 lines)
+- UserProfileViewModel.swift (profile management - 180 lines)
+- UserSettingsViewModel.swift (settings logic - 150 lines)
+- UserNotificationViewModel.swift (notification handling - 120 lines)
+```
+
+### 2. **By Feature or Domain**
+Split based on feature boundaries:
+
+**Example: Large Service**
+```
+Before (800 lines):
+- FirebaseService.swift (auth + firestore + storage + functions)
+
+After:
+- FirebaseAuthService.swift (authentication - 250 lines)
+- FirestoreService.swift (database operations - 300 lines)
+- FirebaseStorageService.swift (file storage - 150 lines)
+- FirebaseFunctionsService.swift (cloud functions - 150 lines)
+```
+
+### 3. **Extract Helper/Utility Classes**
+Move supporting logic to separate files:
+
+**Example: Complex View**
+```
+Before (550 lines):
+- ChatView.swift (UI + formatters + validators + helpers)
+
+After:
+- ChatView.swift (UI only - 300 lines)
+- ChatMessageFormatter.swift (formatting logic - 120 lines)
+- ChatInputValidator.swift (validation logic - 80 lines)
+- ChatViewHelpers.swift (utility functions - 80 lines)
+```
+
+### 4. **Separate Data Models from Logic**
+Keep models in separate files:
+
+**Example: Model with Business Logic**
+```
+Before (520 lines):
+- User.swift (model + validation + computed properties + extensions)
+
+After:
+- User.swift (core model - 150 lines)
+- UserValidation.swift (validation logic - 120 lines)
+- User+Extensions.swift (extensions - 180 lines)
+- UserHelpers.swift (utility functions - 100 lines)
+```
+
+### 5. **Protocol + Implementation Separation**
+Separate interfaces from implementations:
+
+**Example: Large Protocol Implementation**
+```
+Before (650 lines):
+- MessagingManager.swift (protocols + implementations)
+
+After:
+- MessagingProtocols.swift (protocol definitions - 100 lines)
+- MessagingManager.swift (core implementation - 280 lines)
+- MessagingManager+Notifications.swift (notification extension - 150 lines)
+- MessagingManager+Helpers.swift (helper methods - 150 lines)
+```
+
+### 6. **Group Related Extensions**
+Create dedicated extension files:
+
+**Example: View with Many Extensions**
+```
+Before (700 lines):
+- ConversationListView.swift (UI + extensions + modifiers + helpers)
+
+After:
+- ConversationListView.swift (core UI - 250 lines)
+- ConversationListView+Actions.swift (user actions - 150 lines)
+- ConversationListView+Formatting.swift (formatting - 120 lines)
+- ConversationListView+Navigation.swift (navigation logic - 150 lines)
+```
+
+## Best Practices for Splitting
+
+### DO:
+- ✅ Split by logical boundaries (features, responsibilities, domains)
+- ✅ Create meaningful file names that reflect their purpose
+- ✅ Keep related code close together in the same directory
+- ✅ Use extensions to logically group related functionality
+- ✅ Document why files were split in comments if not obvious
+- ✅ Maintain consistent naming patterns (e.g., `ClassName+Extension.swift`)
+
+### DON'T:
+- ❌ Split arbitrarily just to meet the line count
+- ❌ Create files with vague names like `Helpers.swift` or `Utils.swift`
+- ❌ Scatter related functionality across many distant directories
+- ❌ Split in the middle of a cohesive logical unit
+- ❌ Create circular dependencies when splitting
+
+## Naming Conventions for Split Files
+
+Use these patterns for naming split files:
+
+1. **Feature-based**: `[BaseName][Feature].swift`
+   - `UserAuthService.swift`, `UserProfileService.swift`
+
+2. **Extension-based**: `[BaseName]+[Extension].swift`
+   - `User+Validation.swift`, `View+Extensions.swift`
+
+3. **Protocol-based**: `[BaseName]Protocol.swift` or `[BaseName]Protocols.swift`
+   - `MessagingProtocol.swift`, `StorageProtocols.swift`
+
+4. **Category-based**: `[BaseName][Category].swift`
+   - `ChatViewActions.swift`, `ChatViewFormatting.swift`
+
+## Directory Organization
+
+When splitting files, organize them logically:
+
+```
+Services/
+├── Firebase/
+│   ├── FirebaseAuthService.swift (250 lines)
+│   ├── FirestoreService.swift (300 lines)
+│   ├── FirebaseStorageService.swift (150 lines)
+│   └── FirebaseFunctionsService.swift (150 lines)
+├── Networking/
+│   ├── NetworkService.swift (200 lines)
+│   └── APIClient.swift (280 lines)
+└── Local/
+    ├── CacheService.swift (220 lines)
+    └── DatabaseService.swift (320 lines)
+```
+
+## Enforcement
+
+When reviewing or writing code:
+
+1. **Check line count** before committing any file
+2. **Flag files** that are over 450 lines (approaching limit)
+3. **Immediately refactor** files over 500 lines
+4. **Plan ahead** when adding features to prevent exceeding limits
+
+## Exceptions
+
+The ONLY exceptions to this rule are:
+
+1. **Auto-generated files** (explicitly marked with generation comments)
+2. **Third-party code** that cannot be modified
+3. **Configuration files** (non-code files like `.pbxproj`, JSON, etc.)
+
+All other files must comply with the 500-line limit, no exceptions.
+
+## Benefits of This Rule
+
+- **Improved Readability**: Smaller files are easier to understand and navigate
+- **Better Modularity**: Encourages proper separation of concerns
+- **Easier Testing**: Smaller, focused files are simpler to test
+- **Reduced Merge Conflicts**: Smaller files mean less chance of conflicts
+- **Enhanced Maintainability**: Changes are localized and easier to reason about
+- **Faster Code Reviews**: Reviewers can comprehend smaller files more quickly
+
+## Reminder
+
+**This is a HARD requirement.** If a file is about to exceed or has exceeded 500 lines, STOP and refactor before continuing. No file should ever be committed with more than 500 lines of code.
