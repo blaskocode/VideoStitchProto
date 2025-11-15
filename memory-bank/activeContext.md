@@ -2,35 +2,45 @@
 
 ## Current Work Focus
 
-**Status**: Phase 0 in progress - PR 0.1 complete, ready for PR 0.2 (Supabase Integration & Schema).
+**Status**: Phase 1 complete! ✅ Inspire Me Flow fully implemented. Ready to begin Phase 2 - Crafting the Story.
 
 ## Recent Changes
 
 - Memory Bank structure created with all core documentation files
 - Project documentation reviewed and synthesized into Memory Bank
 - Cursor rules comprehensively reviewed and fully incorporated into Memory Bank
-- **PR 0.1 Complete**: Next.js project initialized with:
-  - TypeScript, App Router, ESLint configured
-  - Basic layout and root page created
-  - TypeScript strict mode enabled
-  - Environment variable scaffolding (env.d.ts, .env.example)
-- Ready to proceed with PR 0.2: Supabase Integration & Schema
+- **Phase 0 Complete**: All foundation work done (PRs 0.1, 0.2, 0.3)
+- **PR 1.1 Complete**: Landing page and creation flow UI with stepper
+- **PR 1.2 Complete**: Product and mood prompts with project creation API
+- **PR 1.3 Complete**: Moodboard generation via Replicate with gallery UI
+- **Phase 1 Complete**: Inspire Me Flow fully implemented! Ready for Phase 2 - Crafting the Story
 
 ## Next Steps
 
-### Immediate (Phase 0)
-1. ✅ **PR 0.1**: Initialize Next.js App & Basic Structure - **COMPLETE**
+### Phase 0 - ✅ COMPLETE
+All foundation work completed:
+- ✅ PR 0.1: Next.js App & Basic Structure
+- ✅ PR 0.2: Supabase Integration & Schema
+- ✅ PR 0.3: Session Token & Basic Middleware
 
-2. **PR 0.2**: Supabase Integration & Schema
-   - Install Supabase client
-   - Create Supabase client utilities
-   - Define database schema (projects, jobs tables)
-   - Create TypeScript types matching schema
+### Phase 1 - ✅ COMPLETE
+All Inspire Me Flow work completed:
+- ✅ PR 1.1: Landing Page & Start Flow UI
+- ✅ PR 1.2: Product & Mood Prompt + Project Creation
+- ✅ PR 1.3: Moodboard Generation via Replicate
 
-3. **PR 0.3**: Session Token & Basic Middleware
-   - Implement cookie-based session token system
-   - Create session helper functions
-   - Add project fetching by session token
+### Immediate (Phase 2 - Crafting the Story)
+1. **PR 2.1**: Storyline Generation (Text-Only Tiles)
+   - LLM selection and helper
+   - Prompt template for storylines
+   - API to generate storyline options
+   - UI for storyline selection
+
+2. **PR 2.2**: Scene Tile Expansion (Detailed Blurbs)
+   - Prompt template for scenes
+   - LLM helper for scene generation
+   - API to generate scenes
+   - UI for scene flow review
 
 ## Active Decisions and Considerations
 

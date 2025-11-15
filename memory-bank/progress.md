@@ -6,6 +6,21 @@
 - ✅ Basic app layout and root page created
 - ✅ TypeScript strict mode configured
 - ✅ Environment variable type definitions created
+- ✅ Supabase client installed and configured
+- ✅ Database schema defined (projects and jobs tables)
+- ✅ TypeScript domain types created
+- ✅ Session token management via cookies
+- ✅ Project fetching utilities
+- ✅ Landing page with mission statement
+- ✅ Creation flow route with project status routing
+- ✅ Multi-step stepper UI
+- ✅ Product and mood prompt UI with form validation
+- ✅ Project creation API endpoint
+- ✅ Moodboard data structures and types
+- ✅ Replicate client for image generation
+- ✅ Moodboard generation API with Supabase Storage upload
+- ✅ Moodboard gallery UI with like/skip functionality
+- ✅ Save moodboard likes API
 
 ## Relevant Files (PR 0.1)
 
@@ -23,13 +38,13 @@
 
 ### Phase 0 – Project Setup & Foundations
 - [x] PR 0.1: Initialize Next.js App & Basic Structure
-- [ ] PR 0.2: Supabase Integration & Schema
-- [ ] PR 0.3: Session Token & Basic Middleware
+- [x] PR 0.2: Supabase Integration & Schema
+- [x] PR 0.3: Session Token & Basic Middleware
 
 ### Phase 1 – Inspire Me Flow
-- [ ] PR 1.1: Landing Page & Start Flow UI
-- [ ] PR 1.2: Product & Mood Prompt + Project Creation
-- [ ] PR 1.3: Moodboard Generation via Replicate
+- [x] PR 1.1: Landing Page & Start Flow UI
+- [x] PR 1.2: Product & Mood Prompt + Project Creation
+- [x] PR 1.3: Moodboard Generation via Replicate
 
 ### Phase 2 – Crafting the Story
 - [ ] PR 2.1: Storyline Generation (Text-Only Tiles)
@@ -55,13 +70,13 @@
 
 ## Current Status
 
-**Overall Progress**: 7% (1/14 PRs complete)
+**Overall Progress**: 43% (6/14 PRs complete)
 
-**Current Phase**: Phase 0 - Project Setup
+**Current Phase**: Phase 1 - Inspire Me Flow ✅ COMPLETE
 
-**Next Milestone**: Complete Phase 0 (Project Setup & Foundations)
+**Next Milestone**: Phase 2 - Crafting the Story
 
-**Next Task**: PR 0.2 - Supabase Integration & Schema
+**Next Task**: PR 2.1 - Storyline Generation (Text-Only Tiles)
 
 ## Known Issues
 

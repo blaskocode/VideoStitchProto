@@ -105,18 +105,18 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Install Supabase client**
+- [x] 1. **Install Supabase client**
 
    * Add dependency: `@supabase/supabase-js`.
 
-- [ ] 2. **Create Supabase client utility**
+- [x] 2. **Create Supabase client utility**
 
    * File: `lib/supabaseClient.ts`:
 
      * Export a `createClient()` function for server side (using `createClient`).
      * Export a client factory for browser if needed later.
 
-- [ ] 3. **Define initial DB schema (SQL or migration file)**
+- [x] 3. **Define initial DB schema (SQL or migration file)**
 
    * Tables:
 
@@ -152,7 +152,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      updated_at TIMESTAMPTZ DEFAULT now()
      ```
 
-- [ ] 4. **Create TypeScript types matching schema**
+- [x] 4. **Create TypeScript types matching schema**
 
    * File: `types/domain.ts`:
 
@@ -201,7 +201,10 @@ I’ll write it so an LLM could pick up any PR and just start building.
      ```
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `package.json` - Added @supabase/supabase-js dependency
+- `lib/supabaseClient.ts` - Supabase client utilities for server and browser
+- `supabase/migrations/001_initial_schema.sql` - Database schema for projects and jobs tables
+- `types/domain.ts` - TypeScript types matching database schema (Project, Scene, Job)
 
 ---
 
@@ -211,7 +214,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Add cookie helper**
+- [x] 1. **Add cookie helper**
 
    * File: `lib/session.ts`:
 
@@ -224,21 +227,24 @@ I’ll write it so an LLM could pick up any PR and just start building.
          * Set cookie (HttpOnly, path `/`, long expiry).
          * Return new UUID.
 
-- [ ] 2. **Use session token in root layout or entry point**
+- [x] 2. **Use session token in root layout or entry point**
 
    * In `app/layout.tsx` or a server component wrapper:
 
      * Call `getOrCreateSessionToken()` to ensure every visitor has a token.
      * Store it in a React Context provider if needed on client.
 
-- [ ] 3. **Add utility to fetch project by session token**
+- [x] 3. **Add utility to fetch project by session token**
 
    * File: `lib/projects.ts`:
 
      * `getActiveProject(sessionToken: string)`: returns latest "in-progress" project (status != 'complete') or `null`.
 
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `package.json` - Added uuid and @types/uuid dependencies
+- `lib/session.ts` - Cookie helper functions for session token management
+- `app/layout.tsx` - Updated to ensure session token exists for all visitors
+- `lib/projects.ts` - Utility to fetch active project by session token
 
 ---
 
@@ -250,15 +256,15 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Update `app/page.tsx`**
+- [x] 1. **Update `app/page.tsx`**
 
    * Hero section with:
 
      * Mission statement text:
-       *“For creators who know the vision, and dreamers still discovering it — we turn ideas into beautiful videos in minutes.”*
-     * A prominent “Start creating” button.
+       *"For creators who know the vision, and dreamers still discovering it — we turn ideas into beautiful videos in minutes."*
+     * A prominent "Start creating" button.
 
-- [ ] 2. **Route for the creation flow**
+- [x] 2. **Route for the creation flow**
 
    * Create `app/create/page.tsx`:
 
@@ -266,19 +272,20 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
        * Gets `sessionToken`.
        * Fetches active project for this session.
-       * If none, shows the “Step 1: What are you trying to create?” view.
+       * If none, shows the "Step 1: What are you trying to create?" view.
        * If exists, routes them to correct step based on `project.status`.
 
-- [ ] 3. **Basic layout for multi-step creation**
+- [x] 3. **Basic layout for multi-step creation**
 
    * Create a simple stepper UI:
 
-     * “Inspire Me” → “Crafting the Story” → “Generate the Video” indicators.
+     * "Inspire Me" → "Crafting the Story" → "Generate the Video" indicators.
    * Provide minimal styling.
 
-
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `app/page.tsx` - Updated homepage with mission statement and "Start creating" button
+- `app/create/page.tsx` - Creation flow route with project status routing
+- `app/create/components/Stepper.tsx` - Multi-step stepper UI component
 ---
 
 ### PR 1.2 – Product & Mood Prompt + Project Creation
@@ -287,15 +294,15 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Create UI for product prompt**
+- [x] 1. **Create UI for product prompt**
 
    * In `app/create/page.tsx` (or child component `InspireStepOne`):
 
-     * Textarea for product description (e.g., “A TikTok-style ad for…”).
+     * Textarea for product description (e.g., "A TikTok-style ad for…").
      * Helper text with examples.
-     * “Next” button, disabled if empty.
+     * "Next" button, disabled if empty.
 
-- [ ] 2. **Create UI for mood prompt**
+- [x] 2. **Create UI for mood prompt**
 
    * After product description submission:
 
@@ -304,7 +311,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
        * Exciting, Reflective, Intense, Mysterious, Inspirational, Dreamy, Nostalgic.
 
-- [ ] 3. **API route: create project**
+- [x] 3. **API route: create project**
 
    * `app/api/projects/start/route.ts`:
 
@@ -318,16 +325,17 @@ I’ll write it so an LLM could pick up any PR and just start building.
        * `status = 'inspire'`
      * Returns `{ projectId }`.
 
-- [ ] 4. **Wire frontend to API**
+- [x] 4. **Wire frontend to API**
 
-   * On “Next” after mood:
+   * On "Next" after mood:
 
      * Call `POST /api/projects/start`.
      * Save `projectId` in local state (and optionally use router to push to `/create?projectId=...`).
 
-
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `app/create/components/InspireStepOne.tsx` - Client component for product and mood prompts
+- `app/create/page.tsx` - Updated to use InspireStepOne component
+- `app/api/projects/start/route.ts` - API route to create new project
 ---
 
 ### PR 1.3 – Moodboard Generation via Replicate
@@ -336,7 +344,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
 
 **Tasks:**
 
-- [ ] 1. **Design moodboard data structure**
+- [x] 1. **Design moodboard data structure**
 
    * In `types/domain.ts`:
 
@@ -353,7 +361,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      }
      ```
 
-- [ ] 2. **Implement Replicate client helper**
+- [x] 2. **Implement Replicate client helper**
 
    * File: `lib/replicateClient.ts`:
 
@@ -361,7 +369,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Function `generateMoodboardImages(prompt: string, count: number)` returning array of URLs.
      * For MVP, use a simple image model (e.g., SDXL-like) with cinematic style prompts.
 
-- [ ] 3. **Backend: API to generate moodboards**
+- [x] 3. **Backend: API to generate moodboards**
 
    * Route: `app/api/projects/[projectId]/moodboards/route.ts`
    * `POST`:
@@ -374,7 +382,7 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Saves moodboards JSON on the project.
      * Returns `{ moodboards }`.
 
-- [ ] 4. **Front-end UI: Moodboard gallery**
+- [x] 4. **Front-end UI: Moodboard gallery**
 
    * Component: `MoodboardSelector`.
    * Displays 6–10 cards:
@@ -382,25 +390,31 @@ I’ll write it so an LLM could pick up any PR and just start building.
      * Each card shows a 2x2 grid of images.
      * Buttons:
 
-       * ❤️ “Like”
-       * “Skip”
+       * ❤️ "Like"
+       * "Skip"
    * Track liked moodboard IDs in local state.
 
-- [ ] 5. **API: save moodboard likes**
+- [x] 5. **API: save moodboard likes**
 
    * Route: `app/api/projects/[projectId]/moodboards/like/route.ts`
    * `POST` body: `{ likedMoodboardIds: string[] }`.
    * Writes to `projects.liked_moodboards`.
    * Sets `status` remains `'inspire'` (we move to `'story'` later).
 
-- [ ] 6. **Button: Proceed to Story**
+- [x] 6. **Button: Proceed to Story**
 
-   * “Continue → Craft the Story” button.
+   * "Continue → Craft the Story" button.
    * Calls the like API, then navigates user to `Crafting the Story` step (same page but `status` updated later).
 
-
 **Relevant Files:**
-- (To be updated as tasks are completed)
+- `types/domain.ts` - Added MoodboardImage and Moodboard interfaces
+- `package.json` - Added replicate dependency
+- `lib/replicateClient.ts` - Replicate client helper for image generation
+- `lib/storage.ts` - Supabase Storage helper for uploading images
+- `app/api/projects/[projectId]/moodboards/route.ts` - API to generate moodboards
+- `app/api/projects/[projectId]/moodboards/like/route.ts` - API to save moodboard likes
+- `app/create/components/MoodboardSelector.tsx` - Moodboard gallery UI component
+- `app/create/page.tsx` - Updated to show moodboard selector when moodboards exist
 ---
 
 ## Phase 2 – Crafting the Story (Storylines & Scenes)
